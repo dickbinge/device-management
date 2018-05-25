@@ -10,15 +10,10 @@
                     <el-input type="text" name="userName" id="userName" class="text_field" placeholder="请输入用户名"  v-model="userName" clearable/><br>
                     <span><label class="label_input" for="passWord">密码</label></span>
                     <el-input type="password" name="passWord" id="passWord" class="text_field " v-model="passWord" clearable/>
-                    <div id="position">
-                        <el-radio v-model="user"  label="1" >用户</el-radio>
-                        <el-radio v-model="user"  label="2"> 管理员</el-radio>
-                    </div>
+
                     <div id="login_control">
-                        <el-button type="primary" id="btn_login"  class="btn" @click="Login">登录</el-button>
-                        <!-- <input type="button" id="btn_login" value="登录" class="btn" @click="Login"/> -->
-                        <el-button type="primary"  class="btn" @click="Reset">重置</el-button>
-                        <span id="p_foget" class="a_regist" @click="forgetPass">忘记密码？</span>
+                        <el-button type="primary" id="btn_login"  class="btn" @click="Login" size="mini">登录</el-button>
+                        <el-button type="primary"  class="btn" @click="Reset" size="mini">重置</el-button>
                         
                         <el-dialog title="提示" :visible.sync="dialogVisible" height='30%' width="30%" :before-close="handleClose">
                             <el-form :model="form">
@@ -30,19 +25,26 @@
                                 </el-form-item>
                             </el-form>
                             <div slot="footer" class="dialog-footer">
-                                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                                <el-button @click="dialogFormVisible = false" >取 消</el-button>
                                 <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
                             </div>
                         
                         </el-dialog>
 
-                        <p class="p_reg" >没有账号？<span class="a_regist" v-on:click="ToRegister">立即注册</span></p> 
-                        <p v-show="showTishi">{{tishi}}</p> 
+                        <!-- <p class="p_reg" >没有账号？<span class="a_regist" v-on:click="ToRegister">立即注册</span></p> 
+                        <p v-show="showTishi">{{tishi}}</p>  -->
                     </div>
                 </form>
+                <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+                            <transition name="slide-fade">
+                                <p v-if="showTishi">{{tishi}}</p>
+                            </transition>
+                        </div>
+                </div>
             </div>
             <!--注册页面-->
-            <div id="regist_frame" v-show="showRegist">
+            <!-- <div id="regist_frame" v-show="showRegist">
                 <div id="image_logo"><img src="../../assets/login_img.jpg" alt="标题图片"/></div>
                 <h4>{{registMsg}}</h4>
                 <span class="label_input" for="userName">账号</span>
@@ -58,7 +60,7 @@
                     <p class="p_reg">已有账号<span class="a_regist" v-on:click="ToLogin">立即登录</span></p>  
                     <p v-show="showTishi">{{tishi}}</p>
                 </div>
-            </div>
+            </div> -->
 
         </div>
         <div id="footer"><h4>{{welecomeYou}}</h4></div>
@@ -138,7 +140,7 @@
         Width:60px;
     }
     #login_control{
-        padding-top:10px;
+        padding-top:30px;
     }
     .btn{
         height:30px;
@@ -151,7 +153,7 @@
         margin:0px;
     }
     #btn_login{
-         margin-left: 70px;
+         margin-left: 20px;
 
     }
     #btn_reset{
@@ -178,6 +180,8 @@
 </style>
 <script>
 import {setCookie,getCookie} from '../../assets/js/cookie.js'
+//提供认证服务的restApi
+var authUrl=''
 export default {
   data(){
      return{
@@ -251,31 +255,15 @@ export default {
              /*接口请求*/
              var urlJson="../../../static/userName.json";   //本地测试json文件
              var url="http://localhost:8088/api/v1.0/user/info";  //后台请求
-             this.$http.get(urlJson).then(res=>{
-                var result=res.body.result;
-                for(var i=0;i<result.length;i++){
-                   name.push(result[i].userName);
-                   pass.push(result[i].password);
-                  //用户名正确，密码错误
-                   if(name.indexOf(this.userName)===-1){
-                        this.showTishi=true;
-                        this.tishi="请输入正确的用户名!";
-                        return false;
-                   }
-                   else if(pass.indexOf(this.passWord)===-1){
-                      this.showTishi=true;
-                      this.tishi="请输入正确的密码!";
-                      return false;
-                   }else{
-                      this.tishi="登录成功!";
-                      this.showTishi=true;
-					  setCookie('username',this.userName,1000*60);  //将用户名存到cookie中
-                      setTimeout(function(){
-                          this.$router.push({path:'home',query:{userName:this.userName}})
-                      }.bind(this),1000)
-                   }
-                }
-             })
+             this.$http.post(url,data).then(res=>{
+               localStorage.token = response.data.token
+                localStorage.tokenExpired = response.data.tokenExpired
+                localStorage.userDisplayName = response.data.displayName
+                this.$router.push('home')
+             }),res=>{
+                 this.showTishi=true;
+                 this.tishi="用户名或密码错误";
+             }
           }
       },
       Reset(){   //重置
