@@ -24,13 +24,6 @@
                     <span @click="showDevice">Device</span>
                 </template>
                 </el-submenu>
-
-                <el-submenu index="2">
-                <template slot="title">
-                    <i class="el-icon-setting"></i>
-                    <span @click="showSetting">Setting</span>
-                </template>
-                </el-submenu>
             </el-menu>
             </el-col>
         </el-row>

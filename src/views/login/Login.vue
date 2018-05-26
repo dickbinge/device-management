@@ -15,24 +15,6 @@
                         <el-button type="primary" id="btn_login"  class="btn" @click="Login" size="mini">登录</el-button>
                         <el-button type="primary"  class="btn" @click="Reset" size="mini">重置</el-button>
                         
-                        <el-dialog title="提示" :visible.sync="dialogVisible" height='30%' width="30%" :before-close="handleClose">
-                            <el-form :model="form">
-                                <el-form-item label="账号" :label-width="formLabelWidth">
-                                <el-input v-model="form.name" auto-complete="off"></el-input>
-                                </el-form-item>
-                                <el-form-item label="密码" :label-width="formLabelWidth">
-                                <el-input v-model="form.password" auto-complete="off"></el-input>
-                                </el-form-item>
-                            </el-form>
-                            <div slot="footer" class="dialog-footer">
-                                <el-button @click="dialogFormVisible = false" >取 消</el-button>
-                                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-                            </div>
-                        
-                        </el-dialog>
-
-                        <!-- <p class="p_reg" >没有账号？<span class="a_regist" v-on:click="ToRegister">立即注册</span></p> 
-                        <p v-show="showTishi">{{tishi}}</p>  -->
                     </div>
                 </form>
                 <div class="row">
@@ -43,24 +25,6 @@
                         </div>
                 </div>
             </div>
-            <!--注册页面-->
-            <!-- <div id="regist_frame" v-show="showRegist">
-                <div id="image_logo"><img src="../../assets/login_img.jpg" alt="标题图片"/></div>
-                <h4>{{registMsg}}</h4>
-                <span class="label_input" for="userName">账号</span>
-                <input type="text" name="userName" id="regist_userName" class="text_field" placeholder="请输入用户名"  v-model="userName"/><br>
-                <span><label class="label_input" for="passWord">密码</label></span>
-                <input type="password" name="passWord" id="regist_passWord" class="text_field " v-model="passWord"/><br>
-                <span><label class="label_input" for="passWord">确认</label></span>
-                <input type="password" name="repassWord" id="re_passWord" class="text_field " v-model="passWord"/>
-                <div id="login_control">
-                    <input type="button" id="btn_login" value="注册" class="btn" @click="Regist"/>
-                    <input type="reset" id="btn_reset" value="重置" class="btn"/> 
-
-                    <p class="p_reg">已有账号<span class="a_regist" v-on:click="ToLogin">立即登录</span></p>  
-                    <p v-show="showTishi">{{tishi}}</p>
-                </div>
-            </div> -->
 
         </div>
         <div id="footer"><h4>{{welecomeYou}}</h4></div>
@@ -255,15 +219,21 @@ export default {
              /*接口请求*/
              var urlJson="../../../static/userName.json";   //本地测试json文件
              var url="http://localhost:8088/api/v1.0/user/info";  //后台请求
-             this.$http.post(url,data).then(res=>{
-               localStorage.token = response.data.token
-                localStorage.tokenExpired = response.data.tokenExpired
-                localStorage.userDisplayName = response.data.displayName
-                this.$router.push('home')
-             }),res=>{
-                 this.showTishi=true;
-                 this.tishi="用户名或密码错误";
-             }
+            //  this.$http.post(url,data).then(res=>{
+            //    localStorage.token = response.data.token
+            //     localStorage.tokenExpired = response.data.tokenExpired
+            //     localStorage.userDisplayName = response.data.displayName
+            //     this.$router.push('home')
+            //  }),res=>{
+            //      this.showTishi=true;
+            //      this.tishi="用户名或密码错误";
+            //  }
+              this.tishi="登录成功!";
+                      this.showTishi=true;
+					  setCookie('username',this.userName,1000*60);  //将用户名存到cookie中
+                      setTimeout(function(){
+                          this.$router.push({path:'home',query:{userName:this.userName}})
+                      }.bind(this),1000)
           }
       },
       Reset(){   //重置

@@ -57,18 +57,18 @@ import Device from '@/views/device/Device'
      components:{
         "device-Info":Device
      },
-     mounted(){
-       var data=[];
-       let _this=this;
-        var url="http://localhost:8088/api/v1.0/user/info";  //后台请求
-             this.$http.get(url).then(res=>{
-               var obj={};
-               var result=res;
-               obj.name=res.username;
-               obj.phone=res.phone;
-               obj.email=res.email;
-             })
-     },
+    //  mounted(){
+    //    var data=[];
+    //    let _this=this;
+    //     var url="http://localhost:8088/api/v1.0/user/info";  //后台请求
+    //          this.$http.get(url).then(res=>{
+    //            var obj={};
+    //            var result=res;
+    //            obj.name=res.username;
+    //            obj.phone=res.phone;
+    //            obj.email=res.email;
+    //          })
+    //  },
      methods:{
        handleRowHandle(){
           this.showde=true;
