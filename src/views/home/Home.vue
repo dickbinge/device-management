@@ -1,8 +1,10 @@
 <template>
     <el-container>
-         <el-header class="header">
-          <navheader></navheader>
-      </el-header>
+         <!-- <el-header class="header">
+          <div id="head">
+              <h4>欢迎您:{{this.$route.params.username}}</h4>
+          </div>
+      </el-header> -->
       <el-container>
         <el-aside width="180px">
            <el-row class="tac">
@@ -14,34 +16,23 @@
                 <el-submenu index="1">
                 <template slot="title">
                     <i class="el-icon-menu"></i>
-                    <span @click="showAccount">Account</span>
+                    <router-link to="/user">Account</router-link>
                 </template>
                 </el-submenu>
 
                 <el-submenu index="2">
                 <template slot="title">
                     <i class="el-icon-menu"></i>
-                    <span @click="showDevice">Device</span>
+                    <router-link to="/device">Device</router-link>     
                 </template>
                 </el-submenu>
 
-                <el-submenu index="2">
-                <template slot="title">
-                    <i class="el-icon-setting"></i>
-                    <span @click="showSetting">Setting</span>
-                </template>
-                </el-submenu>
             </el-menu>
             </el-col>
         </el-row>
         </el-aside>
         <el-main>
-            <div v-if="account">
-                <account-Info></account-Info>
-            </div>
-            <div v-if="device">
-                <device-Info></device-Info>
-            </div>
+            <router-view></router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -75,7 +66,6 @@
 </style>
 <script>
 import {setCookie,getCookie,delCookie} from '../../assets/js/cookie.js'
-import NavMenu from '@/views/home/NavBar'
 import NavHear from '@/views/home/NavHear'
 import Account from '@/views/user/Account'
 import Device from '@/views/device/Device'
@@ -98,7 +88,6 @@ import DeviceList from '@/views/device/DeviceList'
            }
        },
         components: {
-            'navmenu': NavMenu,
             'navheader':NavHear,
             'account-Info':Account,
              'device-Info':DeviceList
@@ -106,9 +95,9 @@ import DeviceList from '@/views/device/DeviceList'
        mounted(){
            let uname=getCookie('username')
            this.name=uname
-           if(uname==''){
-               this.$router.push('/')
-           }
+        //    if(uname==''){
+        //        this.$router.push('/')
+        //    }
        },
        methods:{
         //    logout(){
@@ -134,7 +123,7 @@ import DeviceList from '@/views/device/DeviceList'
 
         },
         handleClose(){
-            
+
         }
        }
    }

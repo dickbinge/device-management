@@ -13,11 +13,6 @@ Vue.use(Router)
 export default new Router({
   // mode:'history', 在跟后台交互的时候使用
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'HelloWorld',
-    //   component: HelloWorld
-    // },
     {
       path:'/',
       name:'Login',
@@ -26,12 +21,29 @@ export default new Router({
     {
       path: '/home',
       name: 'Home',
-      component: Home
+      component: Home,
+      children:[
+        {
+          path:'/user',
+          name:'Account',
+          component:Account
+        },
+        {
+          path:'/device',
+          name:'Device',
+          component:Device
+        }
+      ]
     },
     {
       path:'/user',
       name:'Account',
       component:Account
+    },
+    {
+      path:'/device',
+      name:'Device',
+      component:Device
     }
     
   ]
