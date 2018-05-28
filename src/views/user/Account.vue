@@ -97,12 +97,14 @@ import Device from '@/views/device/Device'
      components:{
         "device-Info":Device
      },
+
      mounted(){
         this.getData();
      },
      ready:{
 
      },
+
      methods:{
        getData(){
           let _this=this;

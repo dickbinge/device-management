@@ -14,6 +14,7 @@
                     <div id="login_control">
                         <el-button type="primary" id="btn_login"  class="btn" @click="Login" size="mini">登录</el-button>
                         <el-button type="primary"  class="btn" @click="Reset" size="mini">重置</el-button>
+
                     </div>
                 </form>
                 <div class="row">
@@ -236,6 +237,7 @@ export default {
                    this.passWord='';
                 }
              })
+
           }
       },
       Reset(){   //重置

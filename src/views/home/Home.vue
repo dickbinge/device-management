@@ -26,7 +26,6 @@
                     <router-link to="/device">Device</router-link>     
                 </template>
                 </el-submenu>
-
             </el-menu>
             </el-col>
         </el-row>
