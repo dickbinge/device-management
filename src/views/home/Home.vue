@@ -16,14 +16,14 @@
                 <el-submenu index="1">
                 <template slot="title">
                     <i class="el-icon-menu"></i>
-                    <router-link to="/user">Account</router-link>
+                    <router-link to="/user">用户</router-link>
                 </template>
                 </el-submenu>
 
                 <el-submenu index="2">
                 <template slot="title">
                     <i class="el-icon-menu"></i>
-                    <router-link to="/device">Device</router-link>     
+                    <router-link to="/device">设备</router-link>     
                 </template>
                 </el-submenu>
             </el-menu>
@@ -69,27 +69,20 @@ import NavHear from '@/views/home/NavHear'
 import Account from '@/views/user/Account'
 import Device from '@/views/device/Device'
 import DeviceList from '@/views/device/DeviceList'
-//import Setting from '@views/'
+
    export default {
        data(){
            return{
                name:'',
                account:true,
                device:false,
-               setting:false,
-               tableData:[
-                   {
-                        name: 'jingbin',
-                        phone: '17686840508',
-                        email:"1455655@qq.com"
-                   }
-               ]
+               setting:false
            }
        },
         components: {
             'navheader':NavHear,
             'account-Info':Account,
-             'device-Info':DeviceList
+            'device-Info':DeviceList
         },
        mounted(){
            let uname=getCookie('username')
