@@ -2,19 +2,20 @@
 <div>
   <div id="head">
     <span style="float:left;margin-bottom:10px;">
-       <el-input placeholder="请输入内容" v-model="selectLabel" class="input-with-select">
+       <el-input placeholder="请输入内容" v-model="selectLabel" class="input-with-select" clearable>
         <el-select v-model="select" slot="prepend" placeholder="请选择">
-          <el-option label="用户" value="1"></el-option>
-          <el-option label="设备" value="2"></el-option>
+          <el-option label="用户名称" value="1"></el-option>
+          <el-option label="用户ID" value="2"></el-option>
         </el-select>
-        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+        <el-button slot="append" icon="el-icon-search" @click="search" type="primary">搜索</el-button>
       </el-input>
     </span>
+    <h3 style="display: inline;">Account List</h3>
     <span style="float:right;">
         <el-button type="primary" size="small" @click="addUser">增加用户</el-button>
-        <el-button type="danger" size="small">批量删除</el-button>
+        <el-button type="danger" size="small"  @click="muliteRemove">批量删除</el-button>
     </span>
-    <el-dialog title="新增用户" :visible.sync="dialogFormVisible" style="width:1000px; margin:0 auto;text-algin:center">
+    <el-dialog v-bind:title="etitle" :visible.sync="dialogFormVisible" style="width:1000px; margin:0 auto;text-algin:center">
   <el-form :model="form">
     <el-form-item label="用户名" :label-width="formLabelWidth">
        <el-input type="text" v-model="form.name"  size="small"></el-input>
@@ -28,6 +29,9 @@
     <el-form-item label="邮箱" :label-width="formLabelWidth">
        <el-input type="text" v-model="form.email"  size="small"></el-input>
     </el-form-item>
+    <el-form-item label="类型" :label-width="formLabelWidth">
+       <el-input type="text" v-model="form.type"  size="small"></el-input>
+    </el-form-item>
   </el-form>
   <div slot="footer" class="dialog-footer">
     <el-button @click="reset" size="small">取 消</el-button>
@@ -35,9 +39,10 @@
   </div>
 </el-dialog>
   </div>   
-  <el-table :data="tableData" type="index" border style="width:100%;height:400px;margin:0 auto; text-algin:center" 
-  @row-click='handleRowHandle'>
-     <el-table-column type="selection" width="55"></el-table-column>
+    <el-table :data="tableData" type="index" border style="width:100%;margin:0 auto; text-algin:center;overflow: auto;" 
+    @row-click='handleRowHandle' max-height="400px" @selection-change="handleSelectionChange">
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column type="selection" width="50"></el-table-column>
         <el-table-column prop="username" label="姓名" width="200"   header-align='center' ></el-table-column>
         <el-table-column prop="phone" label="电话" width="250"  header-align='center'></el-table-column>
         <el-table-column prop="email" label="邮箱" width="280"  header-align='center'></el-table-column>
@@ -58,13 +63,25 @@
   :total="1000">
 </el-pagination>
     <div id="device" v-if="showde">
-      <device-Info></device-Info>
+      <div>
+        <el-table :data="deviceData" border style="width:100%;margin:0 auto; text-algin:center;overflow: auto;" max-height="200px">
+              <el-table-column prop="devicename" label="名称" width="300px" header-align="center"></el-table-column>
+              <el-table-column prop="type" label="类型" width="300px" header-align="center"></el-table-column>
+              <el-table-column prop="number" label="数量" width="300px" header-align="center"></el-table-column>
+              <el-table-column prop="description" label="设备信息" width="300px" header-align="center"></el-table-column>
+              
+          </el-table>
+      </div>
     </div>
 </div>
 
 </template>
 
 <style>
+  .el-table .table-head-th{
+      background-color:#f4f4f4;
+      font-size: large;
+  }
   #device{
     margin-top:30px;
   }
@@ -74,6 +91,20 @@
   .dialog-footer{
     text-align: center;
   }
+  .el-form-item__content{
+     margin-left: 90px!important;
+  }
+  .el-form-item__label{
+    text-align: center;
+    width: 90px!important;
+  }
+  .el-form{
+    width: 420px;
+    height: 300px;
+  }
+  .el-dialog__body{
+    padding-top: 10px;
+  }
 </style>
 <script>
 import Device from '@/views/device/Device'
@@ -81,82 +112,179 @@ import Device from '@/views/device/Device'
      data(){
        return{
          selectLabel:'',
-         tableData:[],
+         tableData:[],   //用户列表数据源
          showde:false,
          select:'',
          dialogFormVisible: false,
          form: {
-          name: '',
-          password: '',
-          phone:'',
-          email:''
-        },
-        formLabelWidth: '120px'
+           id:'',
+           name: '',
+           password: '',
+           phone:'',
+           email:'',
+           type:''
+         },
+         formLabelWidth: '120px',
+         deviceData:[],     //设备列表数据源
+         editData:{},    //点击编辑存储当前数据
+         etitle:'',
+         checkData:[]
        }
      },
-     components:{
-        "device-Info":Device
-     },
-
      mounted(){
         this.getData();
      },
-     ready:{
-
-     },
-
-     methods:{
+     methods:{ 
+       /**
+        * 初始用户列表加载
+        */
        getData(){
-          let _this=this;
-          var url="http://localhost:8008/api/v1.0/user/info";  //后台请求
+          var dataTemp=[];  //临时存放数据
+          let self=this;
+          var url="http://localhost:8088/api/v1.0/user/info";  //后台请求
           this.$http.get(url).then(res=>{
-            var obj={};
-            _this.tableData=res.body.data;
+            var userlist=res.body.data;
+            $.each(userlist,function(i){
+               var obj={};
+               obj.id=userlist[i][0];
+               obj.username=userlist[i][1];
+               obj.password=userlist[i][2];
+               obj.type=userlist[i][3];
+               obj.phone=userlist[i][4];
+               obj.email=userlist[i][5];
+               dataTemp[i]=obj;
+            })
+            self.tableData=dataTemp;
           })
        },
-       handleRowHandle(){
+       /**
+        * 点击用户弹出对应分配的设备信息
+        */
+       handleRowHandle(row, event, column){
+          var dataTemp=[];  //临时存放数据
           this.showde=true;
-
-       },search(){
-          let data={'inputUser':this.selectLabel,'selectValue':this.select};
-          var url="http://localhost:8008/api/v1.0/user/infoInput"; 
-          this.$http.post(url,this.selectLabel).then(res=>{
-            _this.tableData=res.body.data;
-          })
-       },addUser(){
-         var self=this;
-          self.dialogFormVisible=true;
-         
-       },confrim(){
           var self=this;
-          let data={'id':'','username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':''};
-          var url="http://localhost:8008/api/v1.0/user/addcount";
-          
+          var url="http://localhost:8088/api/v1.0/device/infoByUserId"; 
+          let data={'id':row.id};   //获取当前选中行的id
           self.$http.post(url,data).then(res=>{
-             var result=res.body.result;
-             if(result!="0"){
+             var deviceList=res.body;
+             $.each(deviceList,function(i){
+                var obj={};
+                obj.devicename=deviceList[i][1];
+                obj.description=deviceList[i][2];
+                obj.type=deviceList[i][3];
+                obj.number=deviceList[i][4];
+                dataTemp[i]=obj;
+             })
+             self.deviceData=dataTemp;
+          })
+       },
+       /**
+        * 搜索用户
+        */
+       search(){
+          var dataTemp=[];  //临时存放数据
+          let self=this;
+           if(this.selectLabel!=undefined&&this.selectLabel.length!=0){
+                let data=this.selectLabel+';'+this.select;
+                var url="http://localhost:8088/api/v1.0/user/infoInput"; 
+                this.$http.post(url,data).then(res=>{
+                   var userlist=res.body.data;
+                   $.each(userlist,function(i){
+                      var obj={};
+                      obj.id=userlist[i][0];
+                      obj.username=userlist[i][1];
+                      obj.password=userlist[i][2];
+                      obj.type=userlist[i][3];
+                      obj.phone=userlist[i][4];
+                      obj.email=userlist[i][5];
+                      dataTemp[i]=obj;
+                  })
+                  self.tableData=dataTemp;
+                })
+           }else{
+              this.getData();
+           }
+       },
+       /**
+        * 点击新增用户
+        */
+       addUser(){
+          var self=this;
+          self.getInit();
+          self.etitle="新增用户";
+          self.dialogFormVisible=true;
+          
+       },
+       /**
+        * 新增用户弹窗确认
+        */
+       confrim(){
+          var self=this;
+          if(self.form.name.length==0||self.form.password.length==0){
+            self.$notify({
+              title: '提示',
+              message: '请将信息补充完整！',
+              type: 'info',
+              position: 'bottom-right',
+              showClose: false,
+              duration:1000
+            });
+            return false;
+          }
+          if(self.form.id==undefined||self.form.id.length==0){  //新增用户界面
+              let data={'id':'','username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':this.form.type};
+              var url="http://localhost:8088/api/v1.0/user/addcount";
+              self.$http.post(url,data).then(res=>{
+                var result=res.body.result;
+                if(result!="0"){
+                    self.$notify({
+                      title: '提示',
+                      message: '当前用户名已存在，请修改后重新注册！',
+                      type: 'info',
+                      position: 'bottom-right',
+                      showClose: false,
+                      duration:1000
+                    });
+                    return false;
+                }else{
+                    self.insertUser();
+                    self.getData();
+                }
+              })
+          }else{  //用户id已存在，是编辑界面
+              let data={'id':this.form.id,'username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':this.form.type};
+              var url="http://localhost:8088/api/v1.0/user/info";
+              self.$http.put(url,data).then(res=>{
+              if(res.result){
                 self.$notify({
                   title: '提示',
-                  message: '当前用户名已存在，请修改后重新注册！',
-                  type: 'info',
+                  message: '用户信息修改成功！',
+                  type: 'success',
                   position: 'bottom-right',
                   showClose: false,
                   duration:1000
                 });
-                return false;
-             }else{
-                self.insertUser();
-                self.dialogFormVisible=false;
-             }
-          })
+               
+              }
+            }).then(res=>{
+               this.dialogFormVisible=false;
+                self.getData();
+            })
+            
+            }
        },
        reset(){
           this.dialogFormVisible=false;
        },
+       /**
+        * 新增用户逻辑
+        */
        insertUser(){
          var self=this;
-         let data={'id':'','username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':''};
-         var url="http://localhost:8008/api/v1.0/user/info";
+        
+         let data={'id':'','username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':this.form.type};
+         var url="http://localhost:8088/api/v1.0/user/info";
           self.$http.post(url,data).then(res=>{
             if(res.body.id!=null){
               self.$notify({
@@ -168,17 +296,24 @@ import Device from '@/views/device/Device'
                 duration:1000
               });
             }
+          }).then(res=>{
+             self.dialogFormVisible=false;
+             self.getData();
           })
-          self.getData();
+         
        },
+       /**
+        * 单条删除用户信息
+        */
         deleteRow(index, rows) {
           var id=rows[index].id;
-          rows.splice(index, 1);
+ 
           var self=this;
-          let data={'id':id,'username':'','password':'','phone':'','email':'','type':''};
-          var url="http://localhost:8008/api/v1.0/user/info";
-          self.$http.delete(url,data).then(res=>{
-            if(res.body.result){
+          let data=id;
+          var url="http://localhost:8088/api/v1.0/user/info?id="+id;
+          self.$http.delete(url).then(res=>{
+            var result=res.bodyText;
+            if(result=='success'){
                 self.$notify({
                 title: '提示',
                 message: '用户信息成功删除！',
@@ -188,9 +323,76 @@ import Device from '@/views/device/Device'
                 duration:1000
               });
             }
+          }).then(res=>{
              self.getData();
+          })
+      },
+       handleSelectionChange(val) {
+        this.checkData = val;
+      },
+      /**
+       * 批量删除用户信息
+       */
+      muliteRemove(){
+        var arrID=[];
+        var strID='';
+        var self=this;
+        var url="http://localhost:8088/api/v1.0/user/batchRemove?ids=";
+        $.each(this.checkData,function(){
+            arrID.push(this.id);
+            strID=strID+this.id+';';
+        })
+        if(arrID.length==0){
+          self.$notify({
+            title: '提示',
+            message: '请勾选一个用户',
+            type: 'info',
+            position: 'bottom-right',
+            showClose: false,
+            duration:1000
           });
-      }
+          return false;
+        }
+        url=url+strID;
+        self.$http.delete(url).then(res=>{
+            var result=res.bodyText;
+            if(result!=0){
+                self.$notify({
+                title: '提示',
+                message: '成功删除！'+result+'条数据!',
+                type: 'info',
+                position: 'bottom-right',
+                showClose: false,
+                duration:1000
+              });
+            }
+          }).then(res=>{
+             self.getData();
+          })
+      },
+      getInit(){
+         this.form.id='';
+         this.form.name='';
+         this.form.password='';
+         this.form.phone='';
+         this.form.email='';
+         this.form.type='';
+      },
+      handleEdit(index,rows){
+          var self=this;
+          self.dialogFormVisible=true;
+          self.editData=rows;
+          self.etitle="编辑用户";
+          self.getInit();
+          this.form={
+             id:rows.id,
+             name:rows.username,
+             password:rows.password,
+             phone:rows.phone,
+             email:rows.email,
+             type:rows.type
+          };
+       }
      }
      
    }

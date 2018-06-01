@@ -44,7 +44,11 @@ export default new Router({
       path:'/device',
       name:'Device',
       component:Device
+    },
+    {
+      path:'/device',
+      name:'DeviceList',
+      component:DeviceList
     }
-    
   ]
 })
