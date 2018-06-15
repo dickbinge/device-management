@@ -9,11 +9,11 @@
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
     </span>
-    <h3 style="display: inline;">Device List</h3>
-    <span style="float:right;">
+    <h3 style="display: inline;color: #99a9bf;">Device List</h3>
+    <!-- <span style="float:right;">
         <el-button type="primary" size="small" @click="addDevice">增加设备</el-button>
-    </span>
-  <el-table :data="tableData" border style="width:100%;margin:0 auto; text-algin:center;height:500px;">
+    </span> -->
+  <el-table :data="tableData" border style="width:100%;margin:0 auto; text-algin:center;height:400px;">
         <el-table-column type="index" width="50" header-align="center"></el-table-column>
         <el-table-column prop="name" label="名称" width="200px" header-align="center"></el-table-column>
         <el-table-column prop="type" label="类型" width="200px" header-align="center"></el-table-column>
@@ -38,6 +38,15 @@
             <el-button type="primary" @click="confrim" size="small">确 定</el-button>
         </div>
     </el-dialog>
+    <h4 style="color: #99a9bf;font-size:15px;display: block;" v-if="showUser">已分配的用户</h4>
+    <div v-if="showUser">
+        <el-table :data="userData" border style="width:100%;margin:0 auto; text-algin:center;overflow: auto;" max-height="200px">
+            <el-table-column type="index" width="50" header-align="center"></el-table-column>
+            <el-table-column prop="name" label="名称" width="300px" header-align="center"></el-table-column>
+            <el-table-column prop="email" label="邮箱" width="300px" header-align="center"></el-table-column>
+            <el-table-column prop="phone" label="电话" width="300px" header-align="center"></el-table-column>    
+          </el-table>
+      </div>
 </div>
 </template>
 <style>
@@ -53,9 +62,11 @@
            selectLabel:'',
            tableData:[],
            dialogTableVisible:false,
-           gridData:[],
+           gridData:[], //当前页面设备数据
            editObj:{},  //存放父页面上选中行的设备ID
-           checkData:[]
+           checkData:[],
+           showUser:false,
+           userData:[]  //当前页面用户列表数据
         }
     },
     mounted(){
@@ -125,8 +136,26 @@
                 this.gridData=tempData;
            })
        },
-       addDevice(){
-
+       viewUser(index,rows){
+           var self=this;
+           self.showUser=true;
+           var deviceID=rows[index].id;
+           var tempData=[];
+           let data={'id':deviceID};
+           var  url="http://localhost:8088/api/v1.0/user/getUserByDeviceId";
+          self.$http.post( url,data).then(res=>{
+               var userList=res.data.result;
+               $.each(userList,function(i){
+                    var obj={};
+                    obj.id=userList[i][0];
+                    obj.name=userList[i][1];
+                    obj.email=userList[i][2];
+                    obj.phone=userList[i][3];
+                    tempData[i]=obj;
+               })
+                this.userData=tempData;
+           })
+         
        },
        confrim(){
            var arrID=[];  //存放当前勾选用户的ID
@@ -138,6 +167,17 @@
                arrID.push(this.id);
                strID=strID+this.id+'&';
            })
+           if(arrID.length==0){  //没有勾选数据
+               self.$notify({
+                    title: '提示',
+                    message: '请勾选一条数据',
+                    type: 'info',
+                    position: 'bottom-right',
+                    showClose: false,
+                    duration:1000
+               });
+                return false;
+           }
            let data=deviceID+':'+strID;
            var url="http://localhost:8088/api/v1.0/user/allot"; 
             self.$http.post(url,data).then(res=>{

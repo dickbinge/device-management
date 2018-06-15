@@ -4,17 +4,21 @@
         <el-aside width="180px">
            <el-row class="tac">
             <el-col :span="24">
-            <el-menu :default-active="$route.path" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+            <el-menu :default-active="$route.path" 
+            class="el-menu-vertical-demo" 
+            @open="handleOpen"
+            @close="handleClose"
             unique-opened
             router
-            active-text-color="#ffd04b" background-color="rgb(252,250,240)" style="height:600px;">
+            active-text-color="#ffd04b" 
+            background-color="rgb(252,250,240)" 
+            style="height:600px;">
                 <el-submenu index="1">
                 <template slot="title">
                     <i class="el-icon-menu"></i>
                     <router-link to="/user">用户</router-link>
                 </template>
                 </el-submenu>
-
                 <el-submenu index="2">
                 <template slot="title">
                     <i class="el-icon-menu"></i>
@@ -32,7 +36,7 @@
     </el-container>
   
 </template>
-<style>
+<style scoped>
     body{    
         background-image: url(../../assets/background.jpg);
         background-size: 100% 100%;
@@ -57,10 +61,22 @@
     #nameInfo span #logout:hover{
          color:#41b883;
     }
+    .el-menu-vertical-demo:not(.el-menu--collapse) {
+        width: 299px;
+        min-height: 300px;
+        background: #27304D;
+    }
+
+    .el-menu {
+        list-style: none;
+        margin: 0;
+        padding-left: 0;
+        vertical-align: top;
+        text-align: left;
+    }
 </style>
 <script>
 import {setCookie,getCookie,delCookie} from '../../assets/js/cookie.js'
-import NavHear from '@/views/home/NavHear'
 import Account from '@/views/user/Account'
 import Device from '@/views/device/Device'
 import DeviceList from '@/views/device/DeviceList'
@@ -72,7 +88,6 @@ import DeviceList from '@/views/device/DeviceList'
            }
        },
         components: {
-            'navheader':NavHear,
             'account-Info':Account,
             'device-Info':DeviceList
         },

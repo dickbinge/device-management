@@ -10,7 +10,7 @@
         <el-button slot="append" icon="el-icon-search" @click="search" type="primary">搜索</el-button>
       </el-input>
     </span>
-    <h3 style="display: inline;">Account List</h3>
+    <h3 style="display: inline;color: #99a9bf;">Account List</h3>
     <span style="float:right;">
         <el-button type="primary" size="small" @click="addUser">增加用户</el-button>
         <el-button type="danger" size="small"  @click="muliteRemove">批量删除</el-button>
