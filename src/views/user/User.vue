@@ -1,18 +1,45 @@
 <template>
   <div>
-  <el-container>
-    <el-header>
-      <header-bar></header-bar>
-    </el-header>
-    <el-container class="el-container-body" id="el-body">
-      <el-aside>
-        <aside-bar></aside-bar>
-      </el-aside>
-      <el-main>
-        <router-view></router-view>
-      </el-main>
+    <el-container>
+
+      <el-container class="el-container-body" id="el-body">
+        <el-aside>
+          <div class="el-aside-bar">
+            <el-menu
+              @open="handleOpen"
+              @close="handleClose"
+              class="el-menu-vertical-demo"
+              background-color="#27304D"
+              text-color="#fff"
+              active-text-color="#ffd04b"
+              default-openeds="[1,2]"
+              router>
+              <el-submenu index="1">
+                <template slot="title">
+                  <span>设备</span>
+                </template>
+                <el-menu-item index="1-1" route="/userInfo/devicelist">
+                  <i class="el-icon-location"></i>
+                  <span>{{deviceMgr}}</span>
+                </el-menu-item>
+              </el-submenu>
+              <el-submenu index="2">
+                <template slot="title">
+                  <span>账户</span>
+                </template>
+                <el-menu-item index="2-1"  route="/userInfo/setting" >
+                  <i class="el-icon-document"></i>
+                  <span>{{accoutSet}}</span>
+                </el-menu-item>
+              </el-submenu>
+            </el-menu>
+          </div>
+        </el-aside>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
+      </el-container>
     </el-container>
-  </el-container>
   </div>
 </template>
 
@@ -26,13 +53,12 @@
   export default {
     data() {
       return {
-        name: ''
+        name: '',
+        accoutSet:"修改账户",
+        deviceMgr:"设备信息",
       }
     },
-    inject:['reload'], //注入reload方法
     components: {
-      'header-bar':HeaderBar,
-      'aside-bar':AsideBar
     },
     mounted() {
       function findDimensions() {
@@ -41,8 +67,8 @@
 
       findDimensions();
       window.onresize=findDimensions;
-      let uname = getCookie('username')
-      this.name = uname
+      //let uname = getCookie('username')
+      this.name = this.$route.params.username;
     },
     methods: {
       handleOpen() {
@@ -135,3 +161,4 @@
     text-align: left;
   }
 </style>
+
