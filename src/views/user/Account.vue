@@ -80,7 +80,9 @@
 
 <script>
 import Device from '@/views/device/Device'
+
 import Conf from '../../config';
+import Account from '../../api/account';
  export default{
    data(){
      return{
@@ -115,21 +117,26 @@ import Conf from '../../config';
      getData(){
         let self=this;
         let dataTemp=[];  //临时存放数据
-        let url = Conf.APIUrl + "/user/info";
-        self.$http.get(url).then(res=>{
-          let userlist=res.body.data;
-          $.each(userlist,function(i){
-             let obj={};
-             obj.id=userlist[i][0];
-             obj.username=userlist[i][1];
-             obj.password=userlist[i][2];
-             obj.type=userlist[i][3];
-             obj.phone=userlist[i][4];
-             obj.email=userlist[i][5];
-             dataTemp[i]=obj;
+        try{
+           Account.getAccountList().then(res=>{
+            console.log(res,'请求成功!');
+            let list=res.data.data;
+            for(let i=0;i<list.length;i++){
+              let obj={};
+              obj.id=list[i][0];
+              obj.username=list[i][1];
+              obj.password=list[i][2];
+              obj.type=list[i][3];
+              obj.phone=list[i][4];
+              obj.email=list[i][5];
+              dataTemp[i]=obj;
+            }
+            self.tableData=dataTemp;
           })
-          self.tableData=dataTemp;
-        })
+
+        }catch (e) {
+            console.error(e);
+        }
      },
      /**
       * 点击用户弹出对应分配的设备信息
@@ -148,18 +155,19 @@ import Conf from '../../config';
         let url=Conf.APIUrl + "/device/infoByUserId";
         let data={'id':row.id};   //获取当前选中行的id
         self.showDevice=true;
-        self.$http.post(url,data).then(res=>{
-           var deviceList=res.body;
-           $.each(deviceList,function(i){
-              var obj={};
-              obj.devicename=deviceList[i][1];
-              obj.description=deviceList[i][2];
-              obj.type=deviceList[i][3];
-              obj.number=deviceList[i][4];
-              dataTemp[i]=obj;
-           })
-           self.deviceData=dataTemp;
-        })
+       Account.listAccount(data).then(res=>{
+         console.log("请求成功!",res);
+         let list=res.data;
+           $.each(list,function(i){
+               var obj={};
+               obj.devicename=list[i][1];
+               obj.description=list[i][2];
+               obj.type=list[i][3];
+               obj.number=list[i][4];
+               dataTemp[i]=obj;
+            })
+            self.deviceData=dataTemp;
+       })
      },
      /**
       * 搜索用户
@@ -169,21 +177,20 @@ import Conf from '../../config';
         let dataTemp=[];  //临时存放数据
         if(this.selectLabel!=undefined&&this.selectLabel.length!=0){
             let data=this.selectLabel+';'+this.select;
-            let url=Conf.APIUrl + "/user/infoInput";
-            self.$http.post(url,data).then(res=>{
-               var userlist=res.body.data;
-               $.each(userlist,function(i){
-                  var obj={};
-                  obj.id=userlist[i][0];
-                  obj.username=userlist[i][1];
-                  obj.password=userlist[i][2];
-                  obj.type=userlist[i][3];
-                  obj.phone=userlist[i][4];
-                  obj.email=userlist[i][5];
-                  dataTemp[i]=obj;
-              })
-              self.tableData=dataTemp;
-            })
+           Account.serachAccount(data).then(res=>{
+             let userList=res.data;
+             $.each(userList,function(i){
+               var obj={};
+               obj.id=userList[i][0];
+               obj.username=userList[i][1];
+               obj.password=userList[i][2];
+               obj.type=userList[i][3];
+               obj.phone=userList[i][4];
+               obj.email=userList[i][5];
+               dataTemp[i]=obj;
+             })
+             self.tableData=dataTemp;
+           })
          }else{
            self.getData();
          }
@@ -209,22 +216,19 @@ import Conf from '../../config';
         }
         if(self.form.id.length==0){  //新增用户界面
             let data={'id':'','username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':this.form.type};
-            let url=Conf.APIUrl + "/user/check_account";
-            self.$http.post(url,data).then(res=>{
-              var result=res.body.userID;
-              if(result.length>0){
+            Account.checkAccount(data).then(res=>{
+              var result=res.data.result;
+              if(result){
                 self.notify("提示","当前用户名已存在，请修改后重新注册！","warning");
                 return false;
               }else{
                   self.insertUser();
-                  self.getData();
               }
             })
         }
         else{  //用户id已存在，是编辑界面
             let data={'id':this.form.id,'username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':this.form.type};
-            let url=Conf.APIUrl + "/user/info";
-            self.$http.put(url,data).then(res=>{
+            Account.editAccount(data).then(res=>{
             if(res.body.result){
                self.notify("提示","用户信息修改成功！","success");
             }
@@ -232,8 +236,7 @@ import Conf from '../../config';
              this.dialogFormVisible=false;
               self.getData();
           })
-
-          }
+        }
      },
      reset(){
         this.dialogFormVisible=false;
@@ -241,19 +244,17 @@ import Conf from '../../config';
      /**
       * 新增用户逻辑
       */
-     insertUser(){
+      insertUser(){
        let self=this;
        let data={'id':'','username':this.form.name,'password':this.form.password,'phone':this.form.phone,'email':this.form.email,'type':this.form.type};
-       let url=Conf.APIUrl + "/user/info";
-       self.$http.post(url,data).then(res=>{
-          if(res.body.id!=null){
+       Account.addAccount(data).then(res=>{
+          if(res.data.id!=null){
              self.notify("提示","用户信息添加成功！","success");
           }
         }).then(res=>{
            self.dialogFormVisible=false;
            self.getData();
         })
-
      },
      /**
       * 单条删除用户信息
@@ -261,8 +262,7 @@ import Conf from '../../config';
       deleteRow(index, rows) {
         let self=this;
         let id=rows[index].id;
-        let url=Conf.APIUrl + "/user/info?id="+id;
-        self.$http.delete(url).then(res=>{
+        Account.deleteAccount(id).then(res=>{
           let result=res.bodyText;
           if(result=='success'){
             self.notify("提示","用户信息删除成功！","success");

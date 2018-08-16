@@ -11,7 +11,6 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import Conf from './config';
 //Vue.use(VueAxios,axios)
-
 Vue.prototype.$ajax=axios   //修改Vue的原型属性
 Vue.config.productionTip = false
 Vue.use(VueResource);
