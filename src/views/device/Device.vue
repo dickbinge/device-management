@@ -1,5 +1,6 @@
 <template>
 <div>
+<<<<<<< HEAD
    <span style="float:left;margin-bottom:10px;">
      <el-input placeholder="请输入内容" v-model="selectLabel" class="input-with-select" clearable>
       <el-select v-model="select" slot="prepend" placeholder="请选择">
@@ -11,6 +12,18 @@
   </span>
   <h3 style="display: inline;color: #99a9bf;">Device List</h3>
   <el-table :data="tableData" border style="width:100%;margin:0 auto; text-algin:center;height:400px;">
+=======
+     <span style="float:left;margin-bottom:10px;">
+       <el-input placeholder="请输入内容" v-model="selectLabel" class="input-with-select" clearable>
+        <el-select v-model="select" slot="prepend" placeholder="请选择">
+          <el-option label="设备名称" value="1"></el-option>
+          <el-option label="设备ID" value="2"></el-option>
+        </el-select>
+        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+      </el-input>
+    </span>
+  <el-table :data="tableData" border style="width:100%;margin:0 auto; text-algin:center;height:500px;">
+>>>>>>> 8bdb377d708d994ffc86f72d652594ad12dd41be
         <el-table-column type="index" width="50" header-align="center"></el-table-column>
         <el-table-column prop="name" label="名称" width="200px" header-align="center"></el-table-column>
         <el-table-column prop="type" label="类型" width="200px" header-align="center"></el-table-column>
@@ -24,7 +37,11 @@
         </el-table-column>
     </el-table>
     <el-dialog title="用户信息" :visible.sync="dialogTableVisible">
+<<<<<<< HEAD
         <el-table :data="gridData" style="overflow: auto;" border max-height="400px"  @selection-change="handleSelectionChange">
+=======
+        <el-table :data="gridData" style="overflow: auto;" border max-height="400px">
+>>>>>>> 8bdb377d708d994ffc86f72d652594ad12dd41be
             <el-table-column type="selection" width="50" header-align="center" @select.native.prevent="changeFun(scope.$index,gridData)"></el-table-column>
             <el-table-column type="index" width="50" header-align="center"></el-table-column>
             <el-table-column prop="name" label="姓名" width="150" header-align="center"></el-table-column>
@@ -35,6 +52,7 @@
             <el-button type="primary" @click="confrim" size="small">确 定</el-button>
         </div>
     </el-dialog>
+<<<<<<< HEAD
     <h4 style="color: #99a9bf;font-size:15px;display: block;" v-if="showUser">已分配的用户</h4>
     <div v-if="showUser">
         <el-table :data="userData" border style="width:100%;margin:0 auto; text-algin:center;overflow: auto;" max-height="200px">
@@ -49,17 +67,34 @@
 <script>
   import Conf from '../../config';
   export default {
+=======
+</div>
+</template>
+<style>
+    .dialog-footer{
+        text-align: center;
+    }
+</style>
+<script>
+ export default {
+>>>>>>> 8bdb377d708d994ffc86f72d652594ad12dd41be
     data(){
         return{
            select:'',
            selectLabel:'',
            tableData:[],
            dialogTableVisible:false,
+<<<<<<< HEAD
            gridData:[], //当前页面设备数据
            editObj:{},  //存放父页面上选中行的设备ID
            checkData:[],
            showUser:false,
            userData:[]  //当前页面用户列表数据
+=======
+           gridData:[],
+           editObj:{},  //存放父页面上选中行的设备ID
+           checkData:[]
+>>>>>>> 8bdb377d708d994ffc86f72d652594ad12dd41be
         }
     },
     mounted(){
@@ -67,6 +102,7 @@
     },
     methods: {
         getData(){
+<<<<<<< HEAD
           let self=this;
           let tempData=[];
           let url = Conf.APIUrl + "/device/info";
@@ -200,3 +236,66 @@
     text-align: center;
   }
 </style>
+=======
+            let self=this;
+            var tempData=[];
+            var url="http://localhost:8088/api/v1.0/device/info";  //后台请求
+            self.$http.get(url).then(res=>{
+                 var deviceList=res.body.data;
+                $.each(deviceList,function(i){
+                    var obj={};
+                    obj.id=deviceList[i].id;
+                    obj.name=deviceList[i].devicename;
+                    obj.type=deviceList[i].type;
+                    obj.number=deviceList[i].number;
+                    obj.description=deviceList[i].description;
+                    tempData[i]=obj;
+                })
+                self.tableData=tempData;
+            })
+        },
+        search(){
+           if(this.selectLabel!=undefined&&this.selectLabel.length!=0){
+                let data=this.selectLabel+';'+this.select;
+                var url="http://localhost:8088/api/v1.0/device/infoInput"; 
+                this.$http.post(url,data).then(res=>{
+                  this.tableData=res.body.data;
+                })
+           }else{
+              this.getData();
+           }
+         
+       },
+       allot(index,rows){
+           var self=this;
+           self.editObj=rows[index]; 
+           var curId=rows[index].id;
+           self.dialogTableVisible=true;
+           let data={'id':curId};
+           var tempData=[]; 
+           var url="http://localhost:8088/api/v1.0/user/allotUser"; 
+           self.$http.post(url,data).then(res=>{
+               var userList=res.data;
+               $.each(userList,function(i){
+                    var obj={};
+                    obj.name=userList[i][1];
+                    obj.email=userList[i][2];
+                    obj.phone=userList[i][3];
+                    tempData[i]=obj;
+               })
+                this.gridData=tempData;
+           })
+       },
+       confrim(){
+           var deviceID=this.editObj.id; //获取需要分配的设备ID
+           var userID=this.checkData;
+       },
+       changeFun(index, row){
+           this.checkData=row;
+       },viewUser(index,row){
+           
+       }
+    }
+  }
+</script>
+>>>>>>> 8bdb377d708d994ffc86f72d652594ad12dd41be

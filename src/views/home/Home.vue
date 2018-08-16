@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div>
   <el-container>
     <el-header>
@@ -11,12 +12,50 @@
       <el-main>
         <router-view></router-view>
       </el-main>
+=======
+    <el-container>
+         <!-- <el-header class="header">
+          <div id="head">
+              <h4>欢迎您:{{this.$route.params.username}}</h4>
+          </div>
+      </el-header> -->
+      <el-container>
+        <el-aside width="180px">
+           <el-row class="tac">
+            <el-col :span="24">
+            <el-menu :default-active="$route.path" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+            unique-opened
+            router
+            active-text-color="#ffd04b">
+                <el-submenu index="1">
+                <template slot="title">
+                    <i class="el-icon-menu"></i>
+                    <router-link to="/user">用户</router-link>
+                </template>
+                </el-submenu>
+
+                <el-submenu index="2">
+                <template slot="title">
+                    <i class="el-icon-menu"></i>
+                    <router-link to="/device">设备</router-link>     
+                </template>
+                </el-submenu>
+            </el-menu>
+            </el-col>
+        </el-row>
+        </el-aside>
+        <el-main>
+            <router-view></router-view>
+        </el-main>
+      </el-container>
+>>>>>>> 8bdb377d708d994ffc86f72d652594ad12dd41be
     </el-container>
   </el-container>
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
   import {setCookie, getCookie, delCookie} from '../../assets/js/cookie.js'
   import Account from '@/views/user/Account'
   import Device from '@/views/device/Device'
@@ -46,6 +85,56 @@
     },
     methods: {
       handleOpen() {
+=======
+import {setCookie,getCookie,delCookie} from '../../assets/js/cookie.js'
+import NavHear from '@/views/home/NavHear'
+import Account from '@/views/user/Account'
+import Device from '@/views/device/Device'
+import DeviceList from '@/views/device/DeviceList'
+
+   export default {
+       data(){
+           return{
+               name:'',
+               account:true,
+               device:false,
+               setting:false
+           }
+       },
+        components: {
+            'navheader':NavHear,
+            'account-Info':Account,
+            'device-Info':DeviceList
+        },
+       mounted(){
+           let uname=getCookie('username')
+           this.name=uname
+        //    if(uname==''){
+        //        this.$router.push('/')
+        //    }
+       },
+       methods:{
+        //    logout(){
+        //        delCookie('username')
+        //        this.$router.push('/')
+        //    }
+        showAccount(){
+            this.account=true;
+            this.device=false;
+            this.setting=false;
+        },
+        showDevice(){
+            this.account=false;
+            this.device=true;
+            this.setting=false;
+        },
+        showSetting(){
+            this.account=false;
+            this.device=false;
+            this.setting=true;
+        },
+        handleOpen(){
+>>>>>>> 8bdb377d708d994ffc86f72d652594ad12dd41be
 
       },
       handleClose() {
